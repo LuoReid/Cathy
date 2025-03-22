@@ -1,0 +1,14 @@
+{
+  "name": "cathy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Long Cheng",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^35.0.3"
+  }
+}
