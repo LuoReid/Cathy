@@ -1,7 +1,7 @@
 {
   "name": "cathy",
   "version": "0.0.1",
-  "description": "",
+  "description": "A drawer to convert excel info to image",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",

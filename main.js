@@ -1,7 +1,9 @@
-require('update-electron-app')()
 
 const { app, BrowserWindow, ipcMain } = require('electron/main')
 const path = require('node:path')
+
+// require('update-electron-app')() // an error when start in win
+
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
@@ -11,16 +13,14 @@ const createWindow = () => {
   win.loadFile('index.html')
 }
 app.whenReady().then(() => {
-  {
-    ipcMain.handle('ping', () => 'pong')
-    createWindow()
+  ipcMain.handle('ping', () => 'pong')
+  createWindow()
 
-    app.on('activate', () => {
-      if (BrowserWindow.getAllWindows().length === 0) {
-        createWindow()
-      }
-    })
-  }
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
 })
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
