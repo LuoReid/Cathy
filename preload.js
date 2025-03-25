@@ -7,5 +7,6 @@ contextBridge.exposeInMainWorld('versions', {
   setTitle: (title) => ipcRenderer.invoke('setTitle', title),
 })
 contextBridge.exposeInMainWorld('electronAPI', {
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
   setTitle: (title) => ipcRenderer.send('set-title', title),
 })

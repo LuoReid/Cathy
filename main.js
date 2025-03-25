@@ -1,5 +1,5 @@
 
-const { app, BrowserWindow, ipcMain } = require('electron/main')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron/main')
 const path = require('node:path')
 
 // require('update-electron-app')() // an error when start in win
@@ -8,6 +8,13 @@ function handleSetTitle(event, title) {
   const webContents = event.sender
   const win = BrowserWindow.fromWebContents(webContents)
   win.setTitle(title)
+}
+
+async function handleOpenFile() {
+  const { cancelled, filePaths } = await dialog.showOpenDialog({})
+  if (!cancelled) {
+    return filePaths[0]
+  }
 }
 
 const createWindow = () => {
@@ -21,6 +28,8 @@ const createWindow = () => {
 }
 
 app.whenReady().then(() => {
+  ipcMain.handle('dialog:openFile', handleOpenFile)
+  
   ipcMain.handle('ping', () => 'pong')
   ipcMain.on('set-title', handleSetTitle)
 
