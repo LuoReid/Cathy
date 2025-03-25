@@ -1,5 +1,5 @@
 
-const { app, BrowserWindow, ipcMain, dialog } = require('electron/main')
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron/main')
 const path = require('node:path')
 
 // require('update-electron-app')() // an error when start in win
@@ -24,14 +24,30 @@ const createWindow = () => {
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   })
 
+  const menu = Menu.buildFromTemplate([
+    {
+      label: 'Increment',
+      click: async () => win.webContents.send('update-counter', 1)
+    },
+    {
+      label: 'Decrement',
+      click: async () => win.webContents.send('update-counter', -1)
+    }
+  ])
+  Menu.setApplicationMenu(menu)
+
   win.loadFile('index.html')
 }
 
 app.whenReady().then(() => {
   ipcMain.handle('dialog:openFile', handleOpenFile)
-  
-  ipcMain.handle('ping', () => 'pong')
+  ipcMain.handle('ping', (_event, ping) => {
+    console.log('ping in main:', ping)
+    return 'pong'
+  })
+
   ipcMain.on('set-title', handleSetTitle)
+  ipcMain.on('counter-value', (_event, value) => console.log('counter value in main:', value))
 
   createWindow()
 

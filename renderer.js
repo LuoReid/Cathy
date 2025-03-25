@@ -1,12 +1,10 @@
 const info = document.getElementById('info')
 info.innerText = `本应用正在使用 Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), 和 Electron (v${versions.electron()})`
 
-const ping = async () => {
-  const response = await window.versions.ping()
-
-  console.log(response)
+const ping = () => {
+  const response = window.versions.ping('ping')
+  console.log('ping in render:', response)
 }
-
 ping()
 
 const setBtn = document.getElementById('btn')
@@ -23,4 +21,12 @@ openFileBtn.addEventListener('click', async () => {
   const filePath = await window.electronAPI.openFile()
   console.log(filePath)
   filePathLabel.innerText = filePath
-}) 
+})
+
+const counterLabel = document.getElementById('counter')
+window.electronAPI.onUpdateCounter((value) => {
+  const oldValue = Number(counterLabel.innerText)
+  const newValue = oldValue + value
+  counterLabel.innerText = newValue.toString()
+  window.electronAPI.counterValue(newValue)
+})
