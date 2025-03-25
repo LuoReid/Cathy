@@ -18,6 +18,17 @@
   <p>Current value:<strong id="counter">0</strong></p>
 
   <script src="./renderer.js"></script>
+  <script>
+    window.onmessage = (e) => {
+      if (e.source === window && e.data === 'main-world-port') {
+        const [port] = e.ports
+        port.onmessage = (event) => {
+          console.log('from main process:', event.data)
+          port.postMessage(e.data.test * 2)
+        }
+      }
+    }
+  </script>
 </body>
 
 </html>

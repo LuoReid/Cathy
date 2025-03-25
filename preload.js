@@ -12,3 +12,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onUpdateCounter: (callback) => ipcRenderer.on('update-counter', (_event, value) => callback(value)),
   counterValue: (value) => ipcRenderer.send('counter-value', value)
 })
+
+const windowLoad = new Promise(resolve => {
+  window.onload = resolve
+})
+ipcRenderer.on('main-world-port', async (e) => {
+  await windowLoad
+  window.postMessage('main-world-port', '*', e.ports)
+})

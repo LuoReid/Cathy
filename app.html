@@ -1,0 +1,11 @@
+<script>
+  const { ipcRenderer } = require('electron')
+  ipcRenderer.send('request-worker-channel')
+  ipcRenderer.once('provide-worker-channel', (e) => {
+    const [port] = event.ports
+    port.onmessage = (e) => {
+      console.log('received result:', e.data)
+    }
+    port.postMessage(211)
+  })
+</script>

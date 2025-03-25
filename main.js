@@ -55,30 +55,31 @@ app.whenReady().then(() => {
   ipcMain.on('set-title', handleSetTitle)
   ipcMain.on('counter-value', (_event, value) => console.log('counter value in main:', value))
 
-  // demo 1
-  // createWindow()
+  ipcMain.on('give-me-a-stream', (event, msg) => {
+    const [replyPort] = event.ports
+    for (let i = 0; i < msg.count; i++) {
+      replyPort.postMessage(msg.element)
+    }
+    replyPort.close()
+  })
 
-  const mainWindow = new BrowserWindow({
-    show: false,
+  // demo 1
+  //createWindow()
+
+  const mainWin = new BrowserWindow({
     webPreferences: {
-      contextIsolation: false,
-      preload: path.join(__dirname, 'preloadMain.js')
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   })
-  const secondWindow = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      contextIsolation: false,
-      preload: path.join(__dirname, 'preloadSecond.js')
-    }
-  })
+  mainWin.loadURL('index.html')
   const { port1, port2 } = new MessageChannelMain()
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.webContents.postMessage('port', null, [port1])
+  port2.postMessage({ test: 21 })
+  port2.on('message', (e) => {
+    console.log('from renderer main world:', e.data)
   })
-  secondWindow.once('ready-to-show', () => {
-    secondWindow.webContents.postMessage('port', null, [port2])
-  })
+  port2.start()
+  mainWin.webContents.postMessage('main-world-port', null, [port1])
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {

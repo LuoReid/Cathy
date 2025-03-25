@@ -1,0 +1,11 @@
+<script>
+  const { ipcRenderer } = require('electron')
+  const doWork = (input) => input * 2
+  ipcRenderer.on('new-client', (event) => {
+    const [port] = event.ports
+    port.onmessage = (e) => {
+      const result = doWork(e.data)
+      port.postMessage(result)
+    }
+  })
+</script>
