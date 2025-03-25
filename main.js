@@ -1,5 +1,5 @@
 
-const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron/main')
+const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain } = require('electron/main')
 const path = require('node:path')
 
 // require('update-electron-app')() // an error when start in win
@@ -55,13 +55,37 @@ app.whenReady().then(() => {
   ipcMain.on('set-title', handleSetTitle)
   ipcMain.on('counter-value', (_event, value) => console.log('counter value in main:', value))
 
-  createWindow()
+  // demo 1
+  // createWindow()
+
+  const mainWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      contextIsolation: false,
+      preload: path.join(__dirname, 'preloadMain.js')
+    }
+  })
+  const secondWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      contextIsolation: false,
+      preload: path.join(__dirname, 'preloadSecond.js')
+    }
+  })
+  const { port1, port2 } = new MessageChannelMain()
+  mainWindow.once('ready-to-show', () => {
+    mainWindow.webContents.postMessage('port', null, [port1])
+  })
+  secondWindow.once('ready-to-show', () => {
+    secondWindow.webContents.postMessage('port', null, [port2])
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
     }
   })
+
 })
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()

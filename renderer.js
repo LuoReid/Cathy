@@ -30,3 +30,5 @@ window.electronAPI.onUpdateCounter((value) => {
   counterLabel.innerText = newValue.toString()
   window.electronAPI.counterValue(newValue)
 })
+
+window.electronMessagePort.postMessage('ping')
