@@ -21,7 +21,11 @@ const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
-    webPreferences: { preload: path.join(__dirname, 'preload.js') }
+    webPreferences: {
+      // sandbox: false,
+      // nodeIntegration: true,
+      preload: path.join(__dirname, 'preload.js')
+    }
   })
 
   const menu = Menu.buildFromTemplate([
@@ -38,6 +42,8 @@ const createWindow = () => {
 
   win.loadFile('index.html')
 }
+
+app.enableSandbox()
 
 app.whenReady().then(() => {
   ipcMain.handle('dialog:openFile', handleOpenFile)
