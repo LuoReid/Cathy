@@ -8,3 +8,11 @@ const ping = async () => {
 }
 
 ping()
+
+const setBtn = document.getElementById('btn')
+const title = document.getElementById('title')
+setBtn.addEventListener('click', () => {
+  const title = title.value
+  console.log(title)
+  window.electronAPI.setTitle(title)
+})
