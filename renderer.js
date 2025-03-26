@@ -1,6 +1,6 @@
 
 const info = document.getElementById('info')
-info.innerText = `本应用正在使用 Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), 和 Electron (v${versions.electron()})`
+info.innerText = `本应用正在使用 Node.js (v${versions.node()}), Chrome (v${versions.chrome()}), 和 Electron (v${versions.electron()})`
 
 const ping = async () => {
   const response = await window.versions.ping('ping')
@@ -47,7 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (element) element.innerText = text
   }
   for (const type of ['chrome', 'node', 'electron']) {
-    replaceText(`${type}-version`, window.versions[type])
+    replaceText(`${type}-version`, window.versions[type]())
   }
 })
 

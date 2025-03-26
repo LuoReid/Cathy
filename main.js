@@ -1,7 +1,7 @@
 
+const { globalShortcut } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme } = require('electron/main')
 const path = require('node:path')
-const { env } = require('node:process')
 
 // require('update-electron-app')() // an error when start in win
 
@@ -130,6 +130,11 @@ const createWindow = () => {
     {
       label: 'Decrement',
       click: async () => win.webContents.send('update-counter', -1)
+    },
+    {
+      label: 'Help',
+      accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Alt+Shift+I',
+      click: async () => console.log('Electron rocks!')
     }
   ])
   Menu.setApplicationMenu(menu)
@@ -141,6 +146,10 @@ const createWindow = () => {
 // app.enableSandbox()
 // app.commandLine.appendSwitch('disable-hid-blocklist')
 app.whenReady().then(() => {
+  globalShortcut.register('Alt+CommandOrControl+I', () => {
+    console.log('Electron loves global shortcuts!')
+  })
+}).then(() => {
   ipcMain.handle('dialog:openFile', handleOpenFile)
   ipcMain.handle('ping', (_event, ping) => {
     console.log('ping in main:', ping)
