@@ -10,9 +10,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
   openFile: () => ipcRenderer.invoke('dialog:openFile'),
   setTitle: (title) => ipcRenderer.send('set-title', title),
   onUpdateCounter: (callback) => ipcRenderer.on('update-counter', (_event, value) => callback(value)),
-  counterValue: (value) => ipcRenderer.send('counter-value', value)
+  counterValue: (value) => ipcRenderer.send('counter-value', value),
+  cancelBluetoothRequest: () => ipcRenderer.send('cancel-bluetooth-request'),
+  bluetoothPairingRequest: (callback) => ipcRenderer.on('bluetooth-pairing-request', () => callback()),
+  bluetoothPairingResponse: (response) => ipcRenderer.send('bluetooth-pairing-response', response),
 })
- 
+
 contextBridge.exposeInMainWorld('darkMode', {
   toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
   system: () => ipcRenderer.invoke('dark-mode:system')

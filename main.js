@@ -4,6 +4,9 @@ const path = require('node:path')
 
 // require('update-electron-app')() // an error when start in win
 
+let bluetoothPinCallback
+let selectBluetoothCallback
+
 function handleSetTitle(event, title) {
   const webContents = event.sender
   const win = BrowserWindow.fromWebContents(webContents)
@@ -28,6 +31,24 @@ const createWindow = () => {
     }
   })
 
+  win.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
+    event.preventDefault()
+    selectBluetoothCallback = callback
+    console.log('devices:', deviceList)
+    const result = deviceList.find(device => device.deviceName === 'xPhone')
+    if (result) { callback(result.deviceId) } else { console.log('no device found') }
+  })
+  ipcMain.on('cancel-bluetooth-request', (event) => {
+    selectBluetoothCallback('')
+  })
+  ipcMain.on('bluetooth-pairing-response', (event, response) => {
+    bluetoothPinCallback(response)
+  })
+  win.webContents.session.setBluetoothPairingHandler((details, callback) => {
+    bluetoothPinCallback = callback
+    win.webContents.send('bluetooth-pairing-request', details)
+  })
+
   const menu = Menu.buildFromTemplate([
     {
       label: 'Increment',
@@ -44,7 +65,7 @@ const createWindow = () => {
 }
 
 // app.enableSandbox()
-
+app.commandLine.appendSwitch('disable-hid-blocklist')
 app.whenReady().then(() => {
   ipcMain.handle('dialog:openFile', handleOpenFile)
   ipcMain.handle('ping', (_event, ping) => {

@@ -51,6 +51,42 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 })
 
+async function testIt() {
+  const device = await navigator.bluetooth.requestDevice({
+    acceptAllDevices: true
+  })
+  document.getElementById('device-name').innerText = device.name || `ID: ${device.id}`
+}
+document.getElementById('clickme').addEventListener('click', testIt)
+function cancelRequest() {
+  window.electronAPI.cancelBluetoothRequest()
+}
+document.getElementById('cancel').addEventListener('click', cancelRequest)
+window.electronAPI.bluetoothPairingRequest((event, details) => {
+  console.log('pairing request:', details)
+  const respose = {}
+  switch (details.pairingKind) {
+    case 'confirm': {
+      respose.confirmed = window.confirm(`Do you want to connect to device ${details.deviceId}?`)
+      break
+    }
+    case 'confirmPin': {
+      respose.confirmed = window.confirm(`Does the pin ${details.pin} match the pin displayed on device ${details.deviceId}?`)
+      break
+    }
+    case 'providePin': {
+      const pin = window.prompt(`Please provide a pin for ${details.deviceId}`)
+      if (pin) {
+        respose.pin = pin
+        respose.confirmed = true
+      } else {
+        respose.confirmed = false
+      }
+    }
+  }
+  window.electronAPI.bluetoothPairingResponse(respose)
+})
+
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {
 //   const { port1, port2 } = new MessageChannel()
