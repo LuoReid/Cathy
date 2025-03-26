@@ -87,6 +87,15 @@ window.electronAPI.bluetoothPairingRequest((event, details) => {
   window.electronAPI.bluetoothPairingResponse(respose)
 })
 
+function formatDevices(devices) {
+  return devices.map(device => device.productName).join('<hr>')
+}
+async function testHid() {
+  document.getElementById('granted-devices').innerHTML = formatDevices(await navigator.hid.getDevices())
+  document.getElementById('granted-devices2').innerHTML = formatDevices(await navigator.hid.requestDevice({ filters: [] }))
+}
+document.getElementById('clickme2').addEventListener('clickhid', testHid)
+
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {
 //   const { port1, port2 } = new MessageChannel()

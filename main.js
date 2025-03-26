@@ -49,6 +49,29 @@ const createWindow = () => {
     win.webContents.send('bluetooth-pairing-request', details)
   })
 
+  win.webContents.session.on('select-hid-device', (event, devices, callback) => {
+    win.webContents.session.on('hid-device-added', (event, device) => {
+      console.log('hid-device added:', device)
+    })
+    win.webContents.session.on('hid-device-removed', (event, device) => {
+      console.log('hid-device removed:', device)
+    })
+    event.preventDefault()
+    if (details.deviceList && details.deviceList.length > 0) {
+      callback(details.deviceList[0].deviceId)
+    }
+  })
+  win.webContents.session.setPermissionCheckHandler((webContents, permission, details) => {
+    if (permission === 'hid' && details.securityOrigin === 'file://') {
+      return true
+    }
+  })
+  win.webContents.session.setDevicePermissionHandler((details) => {
+    if (details.deviceType === 'hid' && details.origin === 'file://') {
+      return true
+    }
+  })
+
   const menu = Menu.buildFromTemplate([
     {
       label: 'Increment',
@@ -65,7 +88,7 @@ const createWindow = () => {
 }
 
 // app.enableSandbox()
-app.commandLine.appendSwitch('disable-hid-blocklist')
+// app.commandLine.appendSwitch('disable-hid-blocklist')
 app.whenReady().then(() => {
   ipcMain.handle('dialog:openFile', handleOpenFile)
   ipcMain.handle('ping', (_event, ping) => {
