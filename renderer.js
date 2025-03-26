@@ -1,4 +1,3 @@
-const { ipcRenderer } = require("electron/renderer")
 
 const info = document.getElementById('info')
 info.innerText = `本应用正在使用 Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), 和 Electron (v${versions.electron()})`
@@ -33,12 +32,32 @@ window.electronAPI.onUpdateCounter((value) => {
   window.electronAPI.counterValue(newValue)
 })
 
-window.electronMessagePort.postMessage('ping')
+document.getElementById('toggle-dark-mode').addEventListener('click', async () => {
+  const isDarkMode = await window.darkMode.toggle()
+  document.getElementById('theme-source').innerHTML = isDarkMode ? 'Dark' : 'Light'
+})
+document.getElementById('reset-to-system').addEventListener('click', async () => {
+  await window.darkMode.system()
+  document.getElementById('theme-source').innerHTML = 'System'
+})
 
-const makeStreamingRequest = (element, callback) => {
-  const { port1, port2 } = new MessageChannel()
-  ipcRenderer.postMessage('give-me-a-stream', { element, count: 10 }, [port2])
-  port1.onmessage = (e) => callback(e.data)
-  port1.onclose = () => console.log('stream ended')
-}
-makeStreamingRequest(42, (data) => { console.log('got response data:', data) })
+window.addEventListener('DOMContentLoaded', () => {
+  const replaceText = (selector, text) => {
+    const element = document.getElementById(selector)
+    if (element) element.innerText = text
+  }
+  for (const type of ['chrome', 'node', 'electron']) {
+    replaceText(`${type}-version`, process.versions[type])
+  }
+})
+
+// window.electronMessagePort.postMessage('ping')
+// const makeStreamingRequest = (element, callback) => {
+//   const { port1, port2 } = new MessageChannel()
+//   ipcRenderer.postMessage('give-me-a-stream', { element, count: 10 }, [port2])
+//   port1.onmessage = (e) => callback(e.data)
+//   port1.onclose = () => console.log('stream ended')
+// }
+// makeStreamingRequest(42, (data) => { console.log('got response data:', data) })
+
+

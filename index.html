@@ -6,28 +6,37 @@
   <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
   <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+  <link rel="stylesheet" type="text/css" href="./styles.css">
   <title>Hello from Electron renderer!</title>
 </head>
 
 <body>
-  <h1>Hello from Electron renderer!</h1>
-  <p>👋</p>
-  <p id="info"></p>
+  <h1>Hello from Electron renderer!👋</h1>
+  <p>We are using Node.js <span id="node-version"></span>,
+    Chromium <span id="chrome-version"></span>,
+    and Electron <span id="electron-version"></span></p>
+  <p id="info" style="border: 1px darkcyan;"> </p>
   <P>Title:<input id="title" /><button id="btn" type="button">Set</button></P>
   <p><Button type="button" id="btnOpenFile">Open a File</Button>File path:<strong id="filePath"></strong></p>
   <p>Current value:<strong id="counter">0</strong></p>
 
+  <div>
+    <p>Current theme source: <strong id="theme-source">System</strong></p>
+    <button id="toggle-dark-mode">Toggle Dark Mode</button>
+    <button id="reset-to-system">Reset to System Theme</button>
+  </div>
+
   <script src="./renderer.js"></script>
   <script>
-    window.onmessage = (e) => {
-      if (e.source === window && e.data === 'main-world-port') {
-        const [port] = e.ports
-        port.onmessage = (event) => {
-          console.log('from main process:', event.data)
-          port.postMessage(e.data.test * 2)
-        }
-      }
-    }
+    // window.onmessage = (e) => {
+    //   if (e.source === window && e.data === 'main-world-port') {
+    //     const [port] = e.ports
+    //     port.onmessage = (event) => {
+    //       console.log('from main process:', event.data)
+    //       port.postMessage(e.data.test * 2)
+    //     }
+    //   }
+    // }
   </script>
 </body>
 
