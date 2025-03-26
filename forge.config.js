@@ -4,6 +4,12 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    protocols: [
+      {
+        name: 'Electron Fiddle',
+        schemes: ['electron-fiddle'],
+      },
+    ],
   },
   rebuildConfig: {},
   makers: [
@@ -17,7 +23,7 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: { mimeType: ['x-scheme-handler/electron-fiddle'] },
     },
     {
       name: '@electron-forge/maker-rpm',

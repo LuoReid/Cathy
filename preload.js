@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld('darkMode', {
   toggle: () => ipcRenderer.invoke('dark-mode:toggle'),
   system: () => ipcRenderer.invoke('dark-mode:system')
 })
+contextBridge.exposeInMainWorld('shell', { open: () => ipcRenderer.send('shell:open') })
 
 // const windowLoad = new Promise(resolve => {
 //   window.onload = resolve

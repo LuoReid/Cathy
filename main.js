@@ -1,10 +1,18 @@
 
 const { globalShortcut } = require('electron')
-const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme } = require('electron/main')
+const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme, shell } = require('electron/main')
 const path = require('node:path')
 
 // require('update-electron-app')() // an error when start in win
 
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('electron-fiddle', process.execPath, [path.resolve(process.argv[1])])
+  }
+} else {
+  app.setAsDefaultProtocolClient('electron-api')
+}
+let mainWindow
 let bluetoothPinCallback
 let selectBluetoothCallback
 
@@ -22,7 +30,7 @@ async function handleOpenFile() {
 }
 
 const createWindow = () => {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
@@ -31,6 +39,7 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js')
     }
   })
+  const win = mainWindow
 
   let grantedDeviceThroughPermHandler
   win.webContents.session.on('select-usb-device', (event, details, callback) => {
@@ -145,6 +154,22 @@ const createWindow = () => {
 
 // app.enableSandbox()
 // app.commandLine.appendSwitch('disable-hid-blocklist')
+
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+    dialog.showErrorBox('Welcome back', `You arrived from ${_commandLine.pop()}`)
+  })
+  app.on('open-url', (event, url) => {
+    dialog.showErrorBox('Welcome back', `You arrived from ${url}`)
+  })
+}
 app.whenReady().then(() => {
   globalShortcut.register('Alt+CommandOrControl+I', () => {
     console.log('Electron loves global shortcuts!')
@@ -189,6 +214,13 @@ app.whenReady().then(() => {
   })
 
 })
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
-})  
+})
+
+ipcMain.on('shell:open', () => {
+  const pageDirectory = __dirname.replace('app.asar', 'app.asar.unpacked')
+  const pagePath = path.join('file://', pageDirectory, 'index.html')
+  shell.openExternal(pagePath)
+})

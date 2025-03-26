@@ -146,6 +146,9 @@ async function testUsb() {
 }
 document.getElementById('clickusb').addEventListener('click', testUsb)
 
+document.getElementById('open-in-browser').addEventListener('click', () => {
+  window.shell.open()
+})
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {
 //   const { port1, port2 } = new MessageChannel()
