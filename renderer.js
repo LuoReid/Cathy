@@ -2,8 +2,8 @@
 const info = document.getElementById('info')
 info.innerText = `本应用正在使用 Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), 和 Electron (v${versions.electron()})`
 
-const ping = () => {
-  const response = window.versions.ping('ping')
+const ping = async () => {
+  const response = await window.versions.ping('ping')
   console.log('ping in render:', response)
 }
 ping()
@@ -46,8 +46,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const element = document.getElementById(selector)
     if (element) element.innerText = text
   }
-  for (const type of ['chrome', 'node', 'electron']) {
-    replaceText(`${type}-version`, process.versions[type])
+  for (const type of ['chrome', 'node', 'electron']) {    
+    replaceText(`${type}-version`, window.versions[type])
   }
 })
 
@@ -94,7 +94,26 @@ async function testHid() {
   document.getElementById('granted-devices').innerHTML = formatDevices(await navigator.hid.getDevices())
   document.getElementById('granted-devices2').innerHTML = formatDevices(await navigator.hid.requestDevice({ filters: [] }))
 }
-document.getElementById('clickme2').addEventListener('clickhid', testHid)
+document.getElementById('clickhid').addEventListener('click', testHid)
+
+async function testSerial() {
+  const filters = [
+    { usbVendorId: 0x2341, usbProductId: 0x0043 },
+    { usbVendorId: 0x2341, usbProductId: 0x0001 }
+  ]
+  try {
+    const port = await navigator.serial.requestPort({ filters })
+    const portInfo = port.getInfo()
+    document.getElementById('device-serial').innerText = `vendorId: ${portInfo.usbVendorId} | productId: ${portInfo.usbProductId}`
+  } catch (ex) {
+    if (ex.name === 'NotFoundError') {
+      document.getElementById('device-serial').innerText = 'Device NOT found'
+    } else {
+      document.getElementById('device-serial').innerText = ex
+    }
+  }
+}
+document.getElementById('clickSerial').addEventListener('click', testSerial)
 
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {

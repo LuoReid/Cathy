@@ -62,14 +62,39 @@ const createWindow = () => {
     }
   })
   win.webContents.session.setPermissionCheckHandler((webContents, permission, details) => {
-    if (permission === 'hid' && details.securityOrigin === 'file://') {
+    if (permission === 'hid' && details.securityOrigin === 'file:///') {
       return true
     }
   })
   win.webContents.session.setDevicePermissionHandler((details) => {
-    if (details.deviceType === 'hid' && details.origin === 'file://') {
+    if (details.deviceType === 'hid' && details.origin === 'file:///') {
       return true
     }
+  })
+
+  win.webContents.session.on('select-serial-port', (event, ports, webContents, callback) => {
+    win.webContents.session.on('serial-port-added', (event, port) => {
+      console.log('serial-port added:', port)
+    })
+    win.webContents.session.on('serial-port-removed', (event, port) => {
+      console.log('serial-port removed:', port)
+    })
+    event.preventDefault()
+    if (ports && ports.length > 0) {
+      callback(ports[0].portId)
+    } else { callback('') }
+  })
+  win.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+    if (permission === 'serial' && details.securityOrigin === 'file:///') {
+      return true
+    }
+    return false
+  })
+  win.webContents.session.setDevicePermissionHandler((details) => {
+    if (details.deviceType === 'serial' && details.origin === 'file:///') {
+      return true
+    }
+    return false
   })
 
   const menu = Menu.buildFromTemplate([
@@ -85,6 +110,7 @@ const createWindow = () => {
   Menu.setApplicationMenu(menu)
 
   win.loadFile('index.html')
+  win.webContents.openDevTools()
 }
 
 // app.enableSandbox()
