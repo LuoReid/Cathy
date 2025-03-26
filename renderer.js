@@ -46,7 +46,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const element = document.getElementById(selector)
     if (element) element.innerText = text
   }
-  for (const type of ['chrome', 'node', 'electron']) {    
+  for (const type of ['chrome', 'node', 'electron']) {
     replaceText(`${type}-version`, window.versions[type])
   }
 })
@@ -114,6 +114,37 @@ async function testSerial() {
   }
 }
 document.getElementById('clickSerial').addEventListener('click', testSerial)
+
+function getDeviceDetails(device) {
+  return device.productName || `Unknown device${device.deviceId}`
+}
+async function testUsb() {
+  const noDeviceFoundMsg = 'No device found'
+  const grantedDevices = await navigator.usb.getDevices()
+  console.log('granted devices:', grantedDevices)
+  let grantedDeviceList = ''
+  if (grantedDevices.length > 0) {
+    for (const d of grantedDevices) {
+      grantedDeviceList += `<hr>${getDeviceDetails(d)}</hr>`
+    }
+  } else {
+    grantedDeviceList = noDeviceFoundMsg
+  }
+  document.getElementById('granted-devices-usb').innerHTML = grantedDeviceList
+
+  grantedDeviceList = ''
+  try {
+    const grantedDevice = await navigator.usb.requestDevice({ filters: [] })
+    console.log('requested device:', grantedDevice)
+    grantedDeviceList += `<hr>${getDeviceDetails(grantedDevice)}</hr>`
+  } catch (ex) {
+    if (ex.name === 'NotFoundError') {
+      grantedDeviceList = noDeviceFoundMsg
+    }
+  }
+  document.getElementById('granted-devices2-usb').innerHTML = grantedDeviceList
+}
+document.getElementById('clickusb').addEventListener('click', testUsb)
 
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {

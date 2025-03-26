@@ -1,6 +1,7 @@
 
 const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme } = require('electron/main')
 const path = require('node:path')
+const { env } = require('node:process')
 
 // require('update-electron-app')() // an error when start in win
 
@@ -31,11 +32,41 @@ const createWindow = () => {
     }
   })
 
+  let grantedDeviceThroughPermHandler
+  win.webContents.session.on('select-usb-device', (event, details, callback) => {
+    win.webContents.session.on('usb-device-added', (event, device) => {
+      console.log('usb-device added:', device)
+    })
+    win.webContents.session.on('usb-device-removed', (event, device) => {
+      console.log('usb-device removed:', device)
+    })
+    event.preventDefault()
+    if (details.deviceList && details.deviceList.length > 0) {
+      const deviceToReturn = details.deviceList
+        .find(device => !grantedDeviceThroughPermHandler ||
+          device.deviceId !== grantedDeviceThroughPermHandler.deviceId)
+      if (deviceToReturn) { callback(deviceToReturn.deviceId) } else { callback() }
+    }
+  })
+  win.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
+    return (permission === 'usb' && details.securityOrigin === 'file:///')
+  })
+  win.webContents.session.setDevicePermissionHandler((details) => {
+    if (details.deviceType === 'usb' && details.origin === 'file:///') {
+      grantedDeviceThroughPermHandler = details
+      return true
+    }
+    return false
+  })
+  win.webContents.session.setUSBProtectedClassesHandler((details) => {
+    return details.protectedClasses.filter(usbClass => usbClass.indexOf('audio') === -1)
+  })
+
   win.webContents.on('select-bluetooth-device', (event, deviceList, callback) => {
     event.preventDefault()
     selectBluetoothCallback = callback
     console.log('devices:', deviceList)
-    const result = deviceList.find(device => device.deviceName === 'xPhone')
+    const result = deviceList.find(device => device.deviceName === 'xPhone8')
     if (result) { callback(result.deviceId) } else { console.log('no device found') }
   })
   ipcMain.on('cancel-bluetooth-request', (event) => {
@@ -85,16 +116,10 @@ const createWindow = () => {
     } else { callback('') }
   })
   win.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
-    if (permission === 'serial' && details.securityOrigin === 'file:///') {
-      return true
-    }
-    return false
+    return (permission === 'serial' && details.securityOrigin === 'file:///')
   })
   win.webContents.session.setDevicePermissionHandler((details) => {
-    if (details.deviceType === 'serial' && details.origin === 'file:///') {
-      return true
-    }
-    return false
+    return (details.deviceType === 'serial' && details.origin === 'file:///')
   })
 
   const menu = Menu.buildFromTemplate([

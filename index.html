@@ -45,6 +45,15 @@
     <p>Matching Arduino Uno device: <strong id="device-serial"></strong></p>
   </div>
 
+  <div>
+    <button id="clickusb">Test WebUSB</button>
+    <h3>USB devices automatically granted access via <i>setDevicePermissionHandler</i></h3>
+    <div id="granted-devices-usb"></div>
+
+    <h3>USB devices automatically granted access via <i>select-usb-device</i></h3>
+    <div id="granted-devices2-usb"></div>
+  </div>
+
   <script src=" ./renderer.js"></script>
   <script>
     // window.onmessage = (e) => {
