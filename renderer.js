@@ -163,6 +163,73 @@ document.getElementById('drag2').ondragstart = (event) => {
   window.electron.startDrag('drag-and-drop-2.md')
 }
 
+const navBack = document.getElementById('backBtn')
+const navForward = document.getElementById('forwardBtn')
+const navBackHistory = document.getElementById('backHistoryBtn')
+const navForwardHistory = document.getElementById('forwardHistoryBtn')
+const navURLInput = document.getElementById('urlInput')
+const navGo = document.getElementById('goBtn')
+const navHistory = document.getElementById('historyPanel')
+async function updateButtons() {
+  const canGoBack = await window.electron.navCanBack()
+  const canGoForward = await window.electron.navCanForward()
+  navBack.disabled = !canGoBack
+  navBackHistory.disabled = !canGoBack
+
+  navForward.disabled = !canGoForward
+  navForwardHistory.disabled = !canGoForward
+}
+async function updateURL() {
+  navURLInput.value = await window.electron.navGetCurrentURL()
+}
+function transformURL(url) {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    const updatedUrl = 'https://' + url
+    return updatedUrl
+  }
+  return url
+}
+async function navigate(url) {
+  const urlInput = transformURL(url)
+  await window.electron.navLoadURL(urlInput)
+}
+async function showHistory(forward = false) {
+  const history = await window.electron.navGetHistory()
+  const currentIndex = history.findIndex(e => e.url === transformURL(navURLInput.value))
+  if (!currentIndex) return
+
+  const relevantHistory = forward ? history.slice(currentIndex + 1) : history.slice(0, currentIndex).reverse()
+  navHistory.innerHTML = ''
+  relevantHistory.forEach(entry => {
+    const div = document.createElement('div')
+    div.textContent = `Title: ${entry.title}, URL: ${entry.url}`
+    div.onclick = () => navigate(entry.url)
+    navHistory.appendChild(div)
+  })
+  navHistory.style.display = 'block'
+}
+navBack.addEventListener('click', () => window.electron.navBack())
+navForward.addEventListener('click', () => window.electron.navForward())
+navBackHistory.addEventListener('click', () => showHistory())
+navForwardHistory.addEventListener('click', () => showHistory(true))
+navGo.addEventListener('click', () => navigate(navURLInput.value))
+navURLInput.addEventListener('keypress', async (e) => {
+  if (e.key === 'Enter') {
+    navigate(navURLInput.value)
+  }
+})
+document.addEventListener('click', (e) => {
+  if (e.target !== navHistory && !history.contains(e.target) &&
+    e.target !== navBackHistory && e.target !== navForwardHistory) {
+    navHistory.style.display = 'none'
+  }
+})
+window.electron.navOnUpdate(() => {
+  updateButtons()
+  updateURL()
+})
+updateButtons()
+
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {
 //   const { port1, port2 } = new MessageChannel()

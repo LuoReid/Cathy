@@ -22,8 +22,16 @@ contextBridge.exposeInMainWorld('darkMode', {
 })
 contextBridge.exposeInMainWorld('shell', { open: () => ipcRenderer.send('shell:open') })
 
-contextBridge.exposeInMainWorld('electron',{
-  startDrag:(fileName) => ipcRenderer.send('ondragstart',fileName)
+contextBridge.exposeInMainWorld('electron', {
+  startDrag: (fileName) => ipcRenderer.send('ondragstart', fileName),
+  navBack: () => ipcRenderer.send('nav:back'),
+  navForward: () => ipcRenderer.send('nav:forward'),
+  navCanBack: () => ipcRenderer.send('nav:canBack'),
+  navCanForward: () => ipcRenderer.send('nav:canForward'),
+  navLoadURL: (url) => ipcRenderer.send('nav:loadURL', url),
+  navGetCurrentURL: () => ipcRenderer.send('nav:getCurrentURL'),
+  navGetHistory: () => ipcRenderer.send('nav:getHistory'),
+  navOnUpdate: (callback) => ipcRenderer.on('nav:update', callback),
 })
 
 // const windowLoad = new Promise(resolve => {

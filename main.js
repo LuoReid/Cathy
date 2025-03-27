@@ -1,6 +1,6 @@
 
 const { globalShortcut } = require('electron')
-const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme, shell } = require('electron/main')
+const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme, shell, WebContentsView } = require('electron/main')
 const path = require('node:path')
 const fs = require('node:fs')
 const https = require('node:https')
@@ -39,10 +39,25 @@ const createWindow = () => {
       // sandbox: false,
       // nodeIntegration: true,
       // nodeIntegrationInWorker: true,
+      contextIsolation: true,
       preload: path.join(__dirname, 'preload.js')
     }
   })
   const win = mainWindow
+
+  const view = new WebContentsView()
+  mainWindow.setContentView(view)
+  view.setBounds({ x: 0, y: 0, width: 600, height: 600 })
+  const navHistory = view.webContents.navigationHistory
+  console.log('navHistory:', navHistory)
+  ipcMain.handle('nav:back', () => navHistory.goBack())
+  ipcMain.handle('nav:forward', () => navHistory.goForward())
+  ipcMain.handle('nav:canBack', () => navHistory.canGoBack())
+  ipcMain.handle('nav:canForward', () => navHistory.canGoForward())
+  ipcMain.handle('nav:loadURL', (_event, url) => view.webContents.loadURL(url))
+  ipcMain.handle('nav:getCurrentURL', () => view.webContents.getURL())
+  ipcMain.handle('nav:getHistory', () => navHistory.getAllEntries())
+  view.webContents.on('did-navigate-in-page', () => { mainWindow.webContents.send('nav:update') })
 
   let grantedDeviceThroughPermHandler
   win.webContents.session.on('select-usb-device', (event, details, callback) => {
@@ -152,7 +167,7 @@ const createWindow = () => {
   Menu.setApplicationMenu(menu)
 
   win.loadFile('index.html')
-  win.webContents.openDevTools()
+  // win.webContents.openDevTools()
 }
 
 const iconName = path.join(__dirname, 'icon.png')
