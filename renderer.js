@@ -230,6 +230,16 @@ window.electron.navOnUpdate(() => {
 })
 updateButtons()
 
+const NOTIFICATION_TITLE = 'Title'
+const NOTIFICATION_BODY = 'Notification from the Renderer process'
+const CLICK_MESSAGE = 'Notification clicked'
+const notifiy = new window.Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY })
+notifiy.onclick = () => {
+  document.getElementById('output').innerText = CLICK_MESSAGE
+  console.log(CLICK_MESSAGE)
+}
+notifiy.show()
+
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {
 //   const { port1, port2 } = new MessageChannel()

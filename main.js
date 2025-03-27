@@ -1,6 +1,6 @@
 
 const { globalShortcut } = require('electron')
-const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme, shell, WebContentsView } = require('electron/main')
+const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme, shell, WebContentsView, Notification } = require('electron/main')
 const path = require('node:path')
 const fs = require('node:fs')
 const https = require('node:https')
@@ -196,6 +196,12 @@ if (!gotTheLock) {
     dialog.showErrorBox('Welcome back', `You arrived from ${url}`)
   })
 }
+
+const NOTIFICATION_TITLE = 'Basic Notification'
+const NOTIFICATION_BODY = 'Notification from the Main process'
+function showNotification() {
+  new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
+}
 app.whenReady().then(() => {
   globalShortcut.register('Alt+CommandOrControl+I', () => {
     console.log('Electron loves global shortcuts!')
@@ -240,6 +246,7 @@ app.whenReady().then(() => {
   })
 
 })
+// .then(showNotification)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
