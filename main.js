@@ -17,6 +17,7 @@ if (process.defaultApp) {
 let mainWindow
 let bluetoothPinCallback
 let selectBluetoothCallback
+let progressInterval
 
 function handleSetTitle(event, title) {
   const webContents = event.sender
@@ -174,6 +175,18 @@ const createWindow = () => {
 
   win.loadFile('index.html')
   // win.webContents.openDevTools()
+
+  const INCREMENT = 0.03
+  const INTERVAL_DELAY = 100 // ms
+  let c = 0
+  progressInterval = setInterval(() => {
+    win.setProgressBar(c)
+    if (c < 2) {
+      c += INCREMENT
+    } else {
+      c = (-INCREMENT * 5)
+    }
+  }, INTERVAL_DELAY)
 }
 
 // const iconName = path.join(__dirname, 'icon.png')
@@ -253,10 +266,13 @@ app.whenReady().then(() => {
   })
 
 })
-.then(showNotification)
+  .then(showNotification)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+})
+app.on('before-quit', () => {
+  clearInterval(progressInterval)
 })
 
 ipcMain.on('shell:open', () => {
