@@ -51,6 +51,22 @@ const createWindow = () => {
     }
   })
   const win = mainWindow
+  mainWindow.setThumbarButtons([
+    {
+      tooltip: 'button1',
+      icon: nativeImage.createFromPath(path.join(__dirname, 'icon.png')),
+      click() { console.log('button1 clicked') }
+    }, {
+      tooltip: 'button2',
+      icon: nativeImage.createFromPath(path.join(__dirname, 'icon.png')),
+      flags: ['enabled', 'dismissonclick'],
+      click() { console.log('button2 clicked.') }
+    }
+  ])
+  mainWindow.setOverlayIcon(nativeImage.createFromPath(path.join(__dirname, 'icon.png')), 'Description for overlay')
+  mainWindow.once('focus', () => mainWindow.flashFrame(false))
+  mainWindow.flashFrame(true)
+
   mainWindow.webContents.on('paint', (_event, dirty, image) => {
     fs.writeFileSync('ex.png', image.toPNG())
   })
@@ -269,12 +285,21 @@ app.on('window-all-closed', () => {
 })
 app.on('before-quit', () => {
   clearInterval(progressInterval)
+  app.setUserTasks([])
+  // mainWindow.setThumbarButtons([])
 })
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }
 })
+app.setUserTasks([
+  {
+    program: process.execPath, arguments: '--new-window',
+    iconPath: process.execPath, iconIndex: 0,
+    title: 'New Window', description: 'Create a new window'
+  },
+])
 
 ipcMain.on('shell:open', () => {
   const pageDirectory = __dirname.replace('app.asar', 'app.asar.unpacked')
