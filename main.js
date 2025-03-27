@@ -1,9 +1,12 @@
 
-const { globalShortcut } = require('electron')
-const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme, shell, WebContentsView, Notification } = require('electron/main')
+const { globalShortcut, nativeImage } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu,
+  MessageChannelMain, nativeTheme, shell, WebContentsView,
+  Notification, Tray } = require('electron/main')
 const path = require('node:path')
 const fs = require('node:fs')
 const https = require('node:https')
+const os = require('node:os')
 
 // require('update-electron-app')() // an error when start in win
 
@@ -18,6 +21,7 @@ let mainWindow
 let bluetoothPinCallback
 let selectBluetoothCallback
 let progressInterval
+let tray
 
 function handleSetTitle(event, title) {
   const webContents = event.sender
@@ -41,6 +45,7 @@ const createWindow = () => {
       // nodeIntegration: true,
       // nodeIntegrationInWorker: true,
       contextIsolation: true,
+      spellcheck: true,
       // offscreen: true,
       preload: path.join(__dirname, 'preload.js')
     }
@@ -51,6 +56,11 @@ const createWindow = () => {
   })
   mainWindow.webContents.setFrameRate(60)
   console.log(`The screenshot has been successfully saved to ${path.join(process.cwd(), 'ex.png')}`)
+
+  mainWindow.setRepresentedFilename(os.homedir())
+  mainWindow.setDocumentEdited(true)
+  mainWindow.webContents.session.setSpellCheckerLanguages(['en-US', 'fr-FR'])
+  console.log('spellchecker:', mainWindow.webContents.session.getSpellCheckerLanguages())
 
   const view = new WebContentsView()
   mainWindow.setContentView(view)
@@ -240,6 +250,17 @@ app.whenReady().then(() => {
   globalShortcut.register('Alt+CommandOrControl+I', () => {
     console.log('Electron loves global shortcuts!')
   })
+  const icon = nativeImage.createFromPath(path.join(__dirname, 'icon.png'))
+  tray = new Tray(icon)
+  const contextMenu = Menu.buildFromTemplate([
+    { label: 'Item1', type: 'radio' },
+    { label: 'Item2', type: 'radio' },
+    { label: 'Item3', type: 'radio', checked: true },
+    { label: 'Item4', type: 'radio' },
+  ])
+  tray.setContextMenu(contextMenu)
+  tray.setToolTip('This is my application.')
+  tray.setTitle('My Application')
 }).then(createWindow).then(showNotification)
 
 app.on('window-all-closed', () => {
