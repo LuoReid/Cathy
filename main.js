@@ -40,10 +40,16 @@ const createWindow = () => {
       // nodeIntegration: true,
       // nodeIntegrationInWorker: true,
       contextIsolation: true,
+      offscreen: true,
       preload: path.join(__dirname, 'preload.js')
     }
   })
   const win = mainWindow
+  mainWindow.webContents.on('paint', (_event, dirty, image) => {
+    fs.writeFileSync('ex.png', image.toPNG())
+  })
+  mainWindow.webContents.setFrameRate(60)
+  console.log(`The screenshot has been successfully saved to ${path.join(process.cwd(), 'ex.png')}`)
 
   const view = new WebContentsView()
   mainWindow.setContentView(view)
@@ -170,16 +176,17 @@ const createWindow = () => {
   // win.webContents.openDevTools()
 }
 
-const iconName = path.join(__dirname, 'icon.png')
+// const iconName = path.join(__dirname, 'icon.png')
 // const icon = fs.createWriteStream(iconName)
-fs.writeFileSync(path.join(__dirname, 'drag-and-drop-1.md'), 'https://www.electronjs.org/docs/api/native-image')
-fs.writeFileSync(path.join(__dirname, 'drag-and-drop-2.md'), 'Second file to test drag and drop')
+// fs.writeFileSync(path.join(__dirname, 'drag-and-drop-1.md'), 'https://www.electronjs.org/docs/api/native-image')
+// fs.writeFileSync(path.join(__dirname, 'drag-and-drop-2.md'), 'Second file to test drag and drop')
 // https.get('https://www.electronjs.org/zh/assets/img/logo.svg', (response) => {
 //   response.pipe(icon)
 // })
 
 // app.enableSandbox()
 // app.commandLine.appendSwitch('disable-hid-blocklist')
+app.disableHardwareAcceleration()
 
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
@@ -261,6 +268,6 @@ ipcMain.on('shell:open', () => {
 ipcMain.on('ondragstart', (event, filePath) => {
   event.sender.startDrag({
     file: path.join(__dirname, filePath),
-    icon: iconName
+    icon: path.join(__dirname, 'icon.png')
   })
 })
