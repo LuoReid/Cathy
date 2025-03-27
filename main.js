@@ -169,6 +169,14 @@ const createWindow = () => {
       label: 'Help',
       accelerator: process.platform === 'darwin' ? 'Alt+Cmd+I' : 'Alt+Shift+I',
       click: async () => console.log('Electron rocks!')
+    },
+    {
+      label: 'Open Recent',
+      role: 'recentDocuments',
+    },
+    {
+      label: 'Clear Recent',
+      role: 'clearRecentDocuments',
     }
   ])
   Menu.setApplicationMenu(menu)
@@ -222,57 +230,29 @@ const NOTIFICATION_BODY = 'Notification from the Main process'
 function showNotification() {
   new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
 }
+
+const fileName = 'recently-used.md'
+fs.writeFileSync(fileName, 'Lorem Ipsum', () => {
+  app.addRecentDocument(path.join(__dirname, fileName))
+})
+
 app.whenReady().then(() => {
   globalShortcut.register('Alt+CommandOrControl+I', () => {
     console.log('Electron loves global shortcuts!')
   })
-}).then(() => {
-  ipcMain.handle('dialog:openFile', handleOpenFile)
-  ipcMain.handle('ping', (_event, ping) => {
-    console.log('ping in main:', ping)
-    return 'pong'
-  })
-
-  ipcMain.handle('dark-mode:toggle', () => {
-    if (nativeTheme.shouldUseDarkColors) {
-      nativeTheme.themeSource = 'light'
-    } else {
-      nativeTheme.themeSource = 'dark'
-    }
-    return nativeTheme.shouldUseDarkColors
-  })
-  ipcMain.handle('dark-mode:system', () => {
-    nativeTheme.themeSource = 'system'
-  })
-
-  ipcMain.on('set-title', handleSetTitle)
-  ipcMain.on('counter-value', (_event, value) => console.log('counter value in main:', value))
-
-  // ipcMain.on('give-me-a-stream', (event, msg) => {
-  //   const [replyPort] = event.ports
-  //   for (let i = 0; i < msg.count; i++) {
-  //     replyPort.postMessage(msg.element)
-  //   }
-  //   replyPort.close()
-  // })
-
-  // demo 1
-  createWindow()
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
-  })
-
-})
-  .then(showNotification)
+}).then(createWindow).then(showNotification)
 
 app.on('window-all-closed', () => {
+  app.clearRecentDocuments()
   if (process.platform !== 'darwin') app.quit()
 })
 app.on('before-quit', () => {
   clearInterval(progressInterval)
+})
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
+  }
 })
 
 ipcMain.on('shell:open', () => {
@@ -287,3 +267,32 @@ ipcMain.on('ondragstart', (event, filePath) => {
     icon: path.join(__dirname, 'icon.png')
   })
 })
+
+ipcMain.handle('dialog:openFile', handleOpenFile)
+ipcMain.handle('ping', (_event, ping) => {
+  console.log('ping in main:', ping)
+  return 'pong'
+})
+
+ipcMain.handle('dark-mode:toggle', () => {
+  if (nativeTheme.shouldUseDarkColors) {
+    nativeTheme.themeSource = 'light'
+  } else {
+    nativeTheme.themeSource = 'dark'
+  }
+  return nativeTheme.shouldUseDarkColors
+})
+ipcMain.handle('dark-mode:system', () => {
+  nativeTheme.themeSource = 'system'
+})
+
+ipcMain.on('set-title', handleSetTitle)
+ipcMain.on('counter-value', (_event, value) => console.log('counter value in main:', value))
+
+// ipcMain.on('give-me-a-stream', (event, msg) => {
+//   const [replyPort] = event.ports
+//   for (let i = 0; i < msg.count; i++) {
+//     replyPort.postMessage(msg.element)
+//   }
+//   replyPort.close()
+// })
