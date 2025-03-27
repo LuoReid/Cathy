@@ -1,0 +1,1 @@
+https://www.electronjs.org/docs/api/native-image

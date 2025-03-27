@@ -2,6 +2,8 @@
 const { globalShortcut } = require('electron')
 const { app, BrowserWindow, ipcMain, dialog, Menu, MessageChannelMain, nativeTheme, shell } = require('electron/main')
 const path = require('node:path')
+const fs = require('node:fs')
+const https = require('node:https')
 
 // require('update-electron-app')() // an error when start in win
 
@@ -36,6 +38,7 @@ const createWindow = () => {
     webPreferences: {
       // sandbox: false,
       // nodeIntegration: true,
+      // nodeIntegrationInWorker: true,
       preload: path.join(__dirname, 'preload.js')
     }
   })
@@ -152,6 +155,14 @@ const createWindow = () => {
   win.webContents.openDevTools()
 }
 
+const iconName = path.join(__dirname, 'icon.png')
+// const icon = fs.createWriteStream(iconName)
+fs.writeFileSync(path.join(__dirname, 'drag-and-drop-1.md'), 'https://www.electronjs.org/docs/api/native-image')
+fs.writeFileSync(path.join(__dirname, 'drag-and-drop-2.md'), 'Second file to test drag and drop')
+// https.get('https://www.electronjs.org/zh/assets/img/logo.svg', (response) => {
+//   response.pipe(icon)
+// })
+
 // app.enableSandbox()
 // app.commandLine.appendSwitch('disable-hid-blocklist')
 
@@ -223,4 +234,11 @@ ipcMain.on('shell:open', () => {
   const pageDirectory = __dirname.replace('app.asar', 'app.asar.unpacked')
   const pagePath = path.join('file://', pageDirectory, 'index.html')
   shell.openExternal(pagePath)
+})
+
+ipcMain.on('ondragstart', (event, filePath) => {
+  event.sender.startDrag({
+    file: path.join(__dirname, filePath),
+    icon: iconName
+  })
 })

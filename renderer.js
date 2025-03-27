@@ -149,6 +149,20 @@ document.getElementById('clickusb').addEventListener('click', testUsb)
 document.getElementById('open-in-browser').addEventListener('click', () => {
   window.shell.open()
 })
+
+document.getElementById('drag').ondragstart = (e) => {
+  e.preventDefault()
+  window.electron.startDrag('icon.png')
+}
+document.getElementById('drag1').ondragstart = (event) => {
+  event.preventDefault()
+  window.electron.startDrag('drag-and-drop-1.md')
+}
+document.getElementById('drag2').ondragstart = (event) => {
+  event.preventDefault()
+  window.electron.startDrag('drag-and-drop-2.md')
+}
+
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {
 //   const { port1, port2 } = new MessageChannel()

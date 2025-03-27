@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld('darkMode', {
 })
 contextBridge.exposeInMainWorld('shell', { open: () => ipcRenderer.send('shell:open') })
 
+contextBridge.exposeInMainWorld('electron',{
+  startDrag:(fileName) => ipcRenderer.send('ondragstart',fileName)
+})
+
 // const windowLoad = new Promise(resolve => {
 //   window.onload = resolve
 // })
