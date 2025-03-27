@@ -40,7 +40,7 @@ const createWindow = () => {
       // nodeIntegration: true,
       // nodeIntegrationInWorker: true,
       contextIsolation: true,
-      offscreen: true,
+      // offscreen: true,
       preload: path.join(__dirname, 'preload.js')
     }
   })
@@ -253,7 +253,7 @@ app.whenReady().then(() => {
   })
 
 })
-// .then(showNotification)
+.then(showNotification)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()

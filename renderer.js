@@ -240,6 +240,13 @@ notifiy.onclick = () => {
 }
 notifiy.show()
 
+const updateOnlineStatus = () => {
+  document.getElementById('status').innerText = navigator.onLine ? 'Online' : 'Offline'
+}
+window.addEventListener('online', updateOnlineStatus)
+window.addEventListener('offline', updateOnlineStatus)
+updateOnlineStatus()
+
 // window.electronMessagePort.postMessage('ping')
 // const makeStreamingRequest = (element, callback) => {
 //   const { port1, port2 } = new MessageChannel()
