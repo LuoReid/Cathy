@@ -1,52 +1,51 @@
-const { FusesPlugin } = require('@electron-forge/plugin-fuses');
-const { FuseV1Options, FuseVersion } = require('@electron/fuses');
-
-module.exports = {
-  packagerConfig: {
-    asar: true,
-    protocols: [
+import { FusesPlugin } from '@electron-forge/plugin-fuses';
+import { FuseV1Options, FuseVersion } from '@electron/fuses';
+export default {
+  "packagerConfig": {
+    "asar": true,
+    "protocols": [
       {
-        name: 'Electron Fiddle',
-        schemes: ['electron-fiddle'],
+        "name": 'Electron Fiddle',
+        "schemes": ['electron-fiddle'],
       },
     ],
   },
-  rebuildConfig: {},
-  makers: [
+  "rebuildConfig": {},
+  "makers": [
     {
-      name: '@electron-forge/maker-squirrel',
-      config: {},
+      "name": '@electron-forge/maker-squirrel',
+      "config": {},
     },
     {
-      name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      "name": '@electron-forge/maker-zip',
+      "platforms": ['darwin'],
     },
     {
-      name: '@electron-forge/maker-deb',
-      config: { mimeType: ['x-scheme-handler/electron-fiddle'] },
+      "name": '@electron-forge/maker-deb',
+      "config": { "mimeType": ['x-scheme-handler/electron-fiddle'] },
     },
     {
-      name: '@electron-forge/maker-rpm',
-      config: {},
+      "name": '@electron-forge/maker-rpm',
+      "config": {},
     },
   ],
-  publishers: [
+  "publishers": [
     {
-      name: '@electron-forge/publisher-github',
-      config: {
-        repository: {
-          owner: 'LuoReid',
-          name: 'Cathy'
+      "name": '@electron-forge/publisher-github',
+      "config": {
+        "repository": {
+          "owner": 'LuoReid',
+          "name": 'Cathy'
         },
-        prerelease: false,
-        draft: true,
+        "prerelease": false,
+        "draft": true,
       }
     }
   ],
-  plugins: [
+  "plugins": [
     {
-      name: '@electron-forge/plugin-auto-unpack-natives',
-      config: {},
+      "name": '@electron-forge/plugin-auto-unpack-natives',
+      "config": {},
     },
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
@@ -60,4 +59,4 @@ module.exports = {
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
   ],
-};
+}
