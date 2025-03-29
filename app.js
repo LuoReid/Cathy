@@ -1,12 +1,15 @@
 
 import { globalShortcut, nativeImage } from 'electron'
-import { app, BrowserWindow, ipcMain, dialog, Menu,
+import {
+    app, BrowserWindow, ipcMain, dialog, Menu,
     MessageChannelMain, nativeTheme, shell, WebContentsView,
-    Notification, Tray } from 'electron/main'
-import path  from 'node:path'
-
+    Notification, Tray
+} from 'electron/main'
+import { fileURLToPath } from 'url'
+import path from 'node:path'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 // require('update-electron-app')() // an error when start in win
-
+console.log('dirname:', __dirname)
 if (process.defaultApp) {
     if (process.argv.length >= 2) {
         app.setAsDefaultProtocolClient('electron-fiddle', process.execPath, [path.resolve(process.argv[1])])
@@ -19,9 +22,9 @@ let bluetoothPinCallback
 let selectBluetoothCallback
 let progressInterval
 let tray
- 
 
-const createWindow = () => {
+
+const createWindow = async () => {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
@@ -94,7 +97,7 @@ app.on('window-all-closed', () => {
 })
 app.on('before-quit', () => {
     clearInterval(progressInterval)
-    app.setUserTasks([])
+    // app.setUserTasks([])
     // mainWindow.setThumbarButtons([])
 })
 app.on('activate', () => {
@@ -102,14 +105,6 @@ app.on('activate', () => {
         createWindow()
     }
 })
-app.setUserTasks([
-    {
-        program: process.execPath, arguments: '--new-window',
-        iconPath: process.execPath, iconIndex: 0,
-        title: 'New Window', description: 'Create a new window'
-    },
-])
-
 ipcMain.on('shell:open', () => {
     const pageDirectory = __dirname.replace('app.asar', 'app.asar.unpacked')
     const pagePath = path.join('file://', pageDirectory, 'index.html')
@@ -122,8 +117,6 @@ ipcMain.on('ondragstart', (event, filePath) => {
         icon: path.join(__dirname, 'icon.png')
     })
 })
-
-ipcMain.handle('dialog:openFile', handleOpenFile)
 ipcMain.handle('ping', (_event, ping) => {
     console.log('ping in main:', ping)
     return 'pong'
@@ -141,6 +134,5 @@ ipcMain.handle('dark-mode:system', () => {
     nativeTheme.themeSource = 'system'
 })
 
-ipcMain.on('set-title', handleSetTitle)
 ipcMain.on('counter-value', (_event, value) => console.log('counter value in main:', value))
 

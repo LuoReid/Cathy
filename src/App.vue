@@ -9,6 +9,8 @@ import TheWelcome from './components/TheWelcome.vue'
 
     <div class="wrapper">
       <HelloWorld msg="You did it!" />
+      asdffasdfasdfa
+      Hello Electron Vue
     </div>
   </header>
 
