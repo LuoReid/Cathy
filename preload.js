@@ -34,6 +34,11 @@ contextBridge.exposeInMainWorld('electron', {
   navOnUpdate: (callback) => ipcRenderer.on('nav:update', callback),
 })
 
+
+contextBridge.exposeInMainWorld('eAPI', {
+  selectExcelFile: () => ipcRenderer.invoke('select-excel-file')
+})
+
 // const windowLoad = new Promise(resolve => {
 //   window.onload = resolve
 // })

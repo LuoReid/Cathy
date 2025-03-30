@@ -1,4 +1,9 @@
 import { contextBridge, ipcRenderer } from 'electron'
+
+contextBridge.exposeInMainWorld('eAPI', {
+  selectExcelFile: () => ipcRenderer.invoke('select-excel-file')
+})
+
 contextBridge.exposeInMainWorld('versions', {
   node: () => process.versions.node,
   chrome: () => process.versions.chrome,

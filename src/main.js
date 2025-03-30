@@ -2,5 +2,6 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
+import ElementPlus from 'element-plus'
 
-createApp(App).mount('#app')
+createApp(App).use(ElementPlus).mount('#app')

@@ -1,21 +1,22 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
 import TheWelcome from './components/TheWelcome.vue'
+import Cathy from './components/Cathy.vue'
+import Cathy0 from './components/Cathy0.vue'
 </script>
 
 <template>
   <header>
     <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-      asdffasdfasdfa
-      Hello Electron Vue
+    <div class="wrapper"> 
+      <!-- <HelloWorld msg="You did it!" /> -->
     </div>
   </header>
 
   <main>
-    <TheWelcome />
+    <Cathy0 />
+    <!-- <TheWelcome /> -->
   </main>
 </template>
 
