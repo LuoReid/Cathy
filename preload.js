@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   cancelBluetoothRequest: () => ipcRenderer.send('cancel-bluetooth-request'),
   bluetoothPairingRequest: (callback) => ipcRenderer.on('bluetooth-pairing-request', () => callback()),
   bluetoothPairingResponse: (response) => ipcRenderer.send('bluetooth-pairing-response', response),
+  getSafePath: (path) => ipcRenderer.invoke('get-safe-path', path)
 })
 
 contextBridge.exposeInMainWorld('darkMode', {
@@ -32,6 +33,11 @@ contextBridge.exposeInMainWorld('electron', {
   navGetCurrentURL: () => ipcRenderer.send('nav:getCurrentURL'),
   navGetHistory: () => ipcRenderer.send('nav:getHistory'),
   navOnUpdate: (callback) => ipcRenderer.on('nav:update', callback),
+})
+
+
+contextBridge.exposeInMainWorld('eAPI', {
+  selectExcelFile: () => ipcRenderer.invoke('select-excel-file')
 })
 
 // const windowLoad = new Promise(resolve => {

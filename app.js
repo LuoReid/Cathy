@@ -1,15 +1,15 @@
 
-import { globalShortcut, nativeImage } from 'electron'
-import {
-    app, BrowserWindow, ipcMain, dialog, Menu,
+const { globalShortcut, nativeImage } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Menu,
     MessageChannelMain, nativeTheme, shell, WebContentsView,
-    Notification, Tray
-} from 'electron/main'
-import { fileURLToPath } from 'url'
-import path from 'node:path'
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-// require('update-electron-app')() // an error when start in win
-console.log('dirname:', __dirname)
+    Notification, Tray } = require('electron/main')
+const path = require('node:path')
+const fs = require('node:fs')
+const https = require('node:https')
+const os = require('node:os')
+
+
+
 if (process.defaultApp) {
     if (process.argv.length >= 2) {
         app.setAsDefaultProtocolClient('electron-fiddle', process.execPath, [path.resolve(process.argv[1])])
@@ -28,16 +28,14 @@ const createWindow = async () => {
     mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
-        titleBarStyle: 'hidden',
-        frame: false,
         webPreferences: {
             // sandbox: false,
             // nodeIntegration: true,
             // nodeIntegrationInWorker: true,
             contextIsolation: true,
-            spellcheck: true,
+            // spellcheck: true,
             // offscreen: true,
-            preload: path.join(__dirname, 'preload.mjs')
+            preload: path.join(__dirname, 'preload.js')
         }
     })
     const win = mainWindow
@@ -68,6 +66,7 @@ const createWindow = async () => {
     Menu.setApplicationMenu(menu)
 
     win.loadURL('http://localhost:5173/')
+    win.webContents.openDevTools()
 }
 
 const gotTheLock = app.requestSingleInstanceLock()
@@ -105,34 +104,22 @@ app.on('activate', () => {
         createWindow()
     }
 })
-ipcMain.on('shell:open', () => {
-    const pageDirectory = __dirname.replace('app.asar', 'app.asar.unpacked')
-    const pagePath = path.join('file://', pageDirectory, 'index.html')
-    shell.openExternal(pagePath)
-})
 
-ipcMain.on('ondragstart', (event, filePath) => {
-    event.sender.startDrag({
-        file: path.join(__dirname, filePath),
-        icon: path.join(__dirname, 'icon.png')
-    })
-})
-ipcMain.handle('ping', (_event, ping) => {
-    console.log('ping in main:', ping)
-    return 'pong'
-})
-
-ipcMain.handle('dark-mode:toggle', () => {
-    if (nativeTheme.shouldUseDarkColors) {
-        nativeTheme.themeSource = 'light'
-    } else {
-        nativeTheme.themeSource = 'dark'
+ipcMain.handle('select-excel-file', async () => {
+    try {
+        const { filePaths } = await dialog.showOpenDialog({})
+        if (!filePaths.length) return null
+        const buffer = await fs.readFile(filePaths[0])
+        return { name: path.basename(filePaths[0]), data: buffer }
+    } catch (error) {
+        console.log('read file error:' + error.message)
     }
-    return nativeTheme.shouldUseDarkColors
 })
-ipcMain.handle('dark-mode:system', () => {
-    nativeTheme.themeSource = 'system'
+ipcMain.handle('get-safe-path', (_, fileName) => {
+    console.log('file path::', fileName)
+    const imgPath = path.join(__dirname, `/images/`)
+    const path1 = `asset://${path.normalize(imgPath).replace(/\\/g, '/')}`
+
+    console.log('file path::', fileName, path1)
+    return path1
 })
-
-ipcMain.on('counter-value', (_event, value) => console.log('counter value in main:', value))
-
