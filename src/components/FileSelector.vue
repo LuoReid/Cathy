@@ -1,19 +1,13 @@
 <template>
   <div class="file-selector">
     <!-- 隐藏的 input 元素 -->
-    <input 
-      type="file"
-      ref="fileInput"
-      @change="handleFileSelect"
-      :accept="acceptTypes"
-      style="display: none;"
-    >
-    
+    <input type="file" ref="fileInput" @change="handleFileSelect" :accept="acceptTypes" style="display: none;">
+
     <!-- 自定义按钮 -->
     <button @click="triggerFileSelect">
       {{ buttonText }}
     </button>
-    
+
     <!-- 状态显示 -->
     <div v-if="selectedFile" class="file-info">
       <p>已选择文件: {{ selectedFile.name }}</p>
@@ -40,7 +34,7 @@ const props = defineProps({
 
 const emit = defineEmits(['file-selected']);
 
-const fileInput = ref(null);
+const fileInput = ref({});
 const selectedFile = ref(null);
 
 // 触发文件选择
@@ -67,7 +61,7 @@ const handleFileSelect = (event) => {
 const validateFileType = (file) => {
   const allowedTypes = props.acceptTypes.split(',').map(t => t.trim());
   if (allowedTypes.includes('*')) return true;
-  
+
   const extension = file.name.split('.').pop().toLowerCase();
   return allowedTypes.some(type => {
     if (type.startsWith('.')) {

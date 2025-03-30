@@ -115,3 +115,11 @@ ipcMain.handle('select-excel-file', async () => {
         console.log('read file error:' + error.message)
     }
 })
+ipcMain.handle('get-safe-path', (_, fileName) => {
+    console.log('file path::', fileName)
+    const imgPath = path.join(__dirname, `/images/`)
+    const path1 = `asset://${path.normalize(imgPath).replace(/\\/g, '/')}`
+
+    console.log('file path::', fileName, path1)
+    return path1
+})
