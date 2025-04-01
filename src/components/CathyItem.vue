@@ -5,13 +5,13 @@
       <div class="product-name">品牌名</div>
       <div class="product-value">{{ p.brand}}</div>
       <div class="product-name">直播价格</div>
-      <div class="product-value product-red">{{ p.price }} ({{ Math.ceil( p.price/p.priceMarket*100)/10 }}折)</div>
+      <div class="product-value product-red">{{ p.priceDaDa }} ({{ Math.ceil( p.priceDaDa/p.price*100)/10 }}折)</div>
       <div class="product-name">市场价格</div>
-      <div class="product-value">吊牌价{{ p.priceMarket }}</div>
+      <div class="product-value">吊牌价{{ p.price }}</div>
     </div>
       <div class="product-header">    
-      <div class="product-name">产品名称/货号</div>
-      <div class="product-value"><p>{{ p.kind }}</P><p>{{ p.prodNo }}</P></div>
+      <div class="product-name">产品名称</div>
+      <div class="product-value"><p>{{ p.name }}</p></div>
       <div class="product-name">成份</div>
       <div class="product-value  product-more">{{ p.material }}</div>
     </div>
@@ -19,38 +19,38 @@
     <div class="box-desc">
       <div class="desc-left">        
         <div class="desc-comment">
-          {{p.comment}}
+          {{p.commentDesigner}}
         </div>
         
         <div class="desc-comment">
-          {{p.prodName}}
+          {{p.commentOne}}
         </div>
       </div>
       <div class="desc-right">        
         <div class="desc-cover">
-          <image class="cover-img" :src="p.prodCoverLink"  />
-          {{p.prodCover}}
+          <image class="cover-img" :src="p.image"  />
+          {{p.image}}
         </div>       
         <div class="desc-cnt">
           <table> 
       <tbody>
-        <tr   >
+        <tr  v-if="p.xs >0" >
           <td  >XS</td>
           <td  >{{ p.xs }}</td>
         </tr>
-        <tr   >
+        <tr   v-if="p.s >0">
           <td  >S</td>
           <td  >{{ p.s }}</td>
         </tr>
-        <tr   >
+        <tr   v-if="p.m >0">
           <td  >M</td>
           <td  >{{ p.m }}</td>
         </tr>
-        <tr   >
+        <tr   v-if="p.l >0">
           <td  >L</td>
           <td  >{{ p.l }}</td>
         </tr>
-        <tr   >
+        <tr   v-if="p.xl >0">
           <td  >XL</td>
           <td  >{{ p.xl }}</td>
         </tr>

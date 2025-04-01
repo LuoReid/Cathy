@@ -33,77 +33,21 @@ const excelHeaders = ref([])
 const excelData = ref([])
 const data = ref([])
 
-const cols = [
-  "款数",
-  "品牌名称",
-  "品类",
-  "类别",
-  "吊牌上款号",
-  "备注",
-  "吊牌上色号",
-  "商品名称",
-  "图片",
-  "到样尺码",
-  "淘宝链接",
-  "吊牌价",
-  "天猫价",
-  "抖音价",
-  "搭搭直播价",
-  "折扣",
-  "吊牌上色号",
-  "XS",
-  "S",
-  "M",
-  "L",
-  "XL",
-  "现货库存数量",
-  "非现货库存需要预售几天能预售多少件）",
-  "商家体验分（大于4.7）",
-  "材质",
-  "一句话卖点",
-  "是否有包邮",
-  "商品链接",
-  "商品id",
-  "商品标题",
-  "店铺名称",
-  "是否运费险",
-]
-const colsEn =
-  [
-    "prodNum",
-    "brand",
-    "kind",
-    "prodType",
-    "prodNo",
-    "comment",
-    "prodColor",
-    "prodName",
-    "prodCover",
-    "prodSize",
-    "prodLink",
-    "priceMarket",
-    "prodTmallPrice",
-    "prodDouyinPrice",
-    "price",
-    "prodDiscount",
-    "prodColor",
-    "XS",
-    "S",
-    "M",
-    "L",
-    "XL",
-    "cnt",
-    "precell",
-    "review",
-    "material",
-    "focus",
-    "shipping",
-    "link",
-    "id",
-    "title",
-    "shop",
-    "freight",
-  ]
+const col = {
+  "序号": "no", "上播备注": "commentTV", "手卡备注": "commentCard", "链接备注": "commentLink",
+  "款数": "styleNum", "品牌名称-必填": "brand", "品类": "kind", "类别": "sort",
+  "SPU-必填": "spu", "SKC": "skc", "商品名称": "name", "图片-必填": "image", "到样尺码": "size", "淘宝链接": "taobao",
+  "吊牌价-必填": "price", "天猫价": "priceTmall", "抖音价": "priceDouyin", "搭搭直播价-必填": "priceDaDa",
+  "搭搭开价价格（券前）": "priceOpen", "差价": "priceDiff", "折扣-必填": "priceDiscount", "颜色": "color",
+  "XS": "xs", "S": "s", "M": "m", "L": "l", "XL": "xl", "现货库存数量-必填": "cnt",
+  "非现货库存需要预售几天（能预售多少件）-必填": "cntReview", "推荐尺码": "sizeGood", "尺码表": "sizeList",
+  "商家体验分（大于4.7）": "review", "材质": "material", "设计师介绍": "commentDesigner", "一句话卖点": "commentOne",
+  "是否有包邮": "shippingFree", "商品链接": "link", "商品id": "id",
+  "商品标题": "title", "店铺名称-必填": "shop", "是否运费险-必填": "shippingInsurance", "发货时间": "deliverTime",
+  "商品规格（主品+赠品详细规格）": "standard", "保质期": "hedge", "本批次内最早的生产日期": "firstDate", "若是跨境的品发货仓是什么仓": "shippingStore", "包邮快递公司": "deliveryCompany",
+  "限购地区（不发货）": "limitArea", "品牌商务": "brandBusiness", "快递单号": "shipNo", "到样时间": "exampleTime", "明星同款": "styleHot", "是否已退样": "exampleReturn"
+}
+
 const regex = /ID_[A-Z0-9]+/
 const getImg = (filePath) => {
   console.log('load image:', filePath)
@@ -127,18 +71,19 @@ const handleExcelFile = async (file) => {
     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
     const jsonData = utils.sheet_to_json(worksheet, { header: 1 })
 
-    excelHeaders.value = jsonData[1] || [];
-    excelData.value = jsonData.slice(2);
+    excelHeaders.value = jsonData[0] || [];
+    excelData.value = jsonData.slice(1);
     const products = excelData.value.map((m) => {
       const d = {}
-      cols.forEach((h, i) => {
-        d[colsEn[i]] = m[i]
+      Object.keys(col).forEach((k, i) => {
+        console.log('item:', k, i, col[k], d, m)
+        d[col[k]] = m[i]
       })
-      
+
       const img = getImg(d.prodCover)
       const imgLink = (img) ? `${baseLink}${img}.jpg` : ''
       d.prodCoverLink = imgLink
-      console.log('m:', d.prodCover, imgLink)
+      console.log('m:', d, d.prodCover, imgLink)
       return d
     })
     cacheData(products)
